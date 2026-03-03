@@ -22,26 +22,29 @@ ShieldDrive simulates this entire ecosystem, providing a robust platform for val
 
 A Python Flask REST API that acts as the "Cloud Brain."
 
-- **Vehicle State Management**: Stores real-time data (Battery, Tire Pressure, Status) for a fleet of vehicles.
-- **Remote Command Logic**: Handles execution of commands like `LOCK`, `UNLOCK`, and `FLASH_LIGHTS`.
-- **Safety Interlocks**: Includes server-side validation (e.g., rejecting `REMOTE_START` if battery is < 15%).
-- **Command Logging**: Maintains an audit trail of every command sent to every vehicle.
+- **Vehicle State Management**: Stores real-time data including **GPS Location**, **Mileage**, Battery, and Tire Pressure.
+- **Remote Command Logic**: Handles execution of commands with built-in safety interlocks.
+- **OTA Update Simulation**: A state machine for simulating Over-the-Air software updates (`DOWNLOADING` -> `INSTALLING` -> `SUCCESS`).
+- **Telemetry History**: Maintains a rolling window of the last 10 telemetry readings for trend analysis.
+- **Safety Interlocks**: Advanced validation (e.g., rejecting commands for `OFFLINE` vehicles or low-battery states).
 
 ### 2. Fleet Dashboard (`dashboard.html`)
 
 A premium, dark-mode web interface for fleet managers.
 
-- **Real-time Polling**: Automatically refreshes vehicle data every 3 seconds.
-- **Dynamic Styling**: Visual cues for vehicle health (OK: Green, ALERT: Pulsing Red, OFFLINE: Gray).
-- **Interactive Controls**: Buttons to trigger remote vehicle commands.
+- **Advanced Visualization**: Displays real-time GPS coordinates and mileage for every vehicle in the fleet.
+- **OTA Management**: Dedicated UI controls to trigger and monitor software updates with status-specific color coding.
+- **Real-time Polling**: Automatically refreshes vehicle state and "Last Updated" timestamps every 3 seconds.
+- **Interactive Controls**: Dynamic buttons that auto-disable based on vehicle connectivity status.
 
 ### 3. E2E Test Suite (`tests/fleet_tests.robot`)
 
 A Robot Framework suite that orchestrates complex test scenarios:
 
-- **Alert Injection**: Uses `RequestsLibrary` to simulate a vehicle fault and `SeleniumLibrary` to verify the UI reflects it.
-- **Command Traceability**: Verifies that button clicks in the browser are correctly recorded in the backend logs.
-- **Safety Validation**: Automates the verification of safety interlocks (testing rejection logic for low-battery vehicles).
+- **OTA Workflow Validation**: Verifies that triggering an update correctly moves the system through sequential states.
+- **Offline Safety Interlocks**: Validates that the UI and API correctly block operations on disconnected vehicles.
+- **Alert Injection**: Simulates vehicle faults and verifies real-time UI reaction.
+- **Command Traceability**: Ensures every interaction is logged for audit purposes.
 
 ## Project Structure
 
@@ -92,8 +95,19 @@ ShieldDrive is designed to be modular and can be expanded with the following:
 - **MQTT Integration**: Replace the REST polling with a real-time MQTT broker for "Vehicle-to-Cloud" messaging.
 - **Page Object Model (POM)**: Refactor the Robot tests to use a POM architecture for better maintainability.
 - **Database Persistence**: Move from in-memory storage to SQLite or PostgreSQL to persist fleet history.
+- **CI/CD Integration**: Fully configured GitHub Actions workflow that automatically runs the E2E suite on every push.
 - **CAN Bus Simulation**: Integrate with `python-can` and `vcan` to route commands to virtual vehicle hardware.
 - **Authentication**: Add a login layer with JWT to test secure user access to the fleet.
+
+## CI/CD Workflow
+
+The project includes a GitHub Actions workflow located at `.github/workflows/robot-tests.yml`. This workflow:
+
+1.  Sets up a Python 3.10 environment.
+2.  Installs all dependencies.
+3.  Spins up the Telematics Backend in the background.
+4.  Executes the Robot Framework suite in `headlesschrome` mode.
+5.  Uploads test logs, reports, and failed-test screenshots as build artifacts.
 
 ---
 
