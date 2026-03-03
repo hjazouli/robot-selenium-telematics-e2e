@@ -1,5 +1,7 @@
 ## ShieldDrive | Automotive Telematics & Fleet Management Portal
 
+![CI](https://github.com/hjazouli/robot-selenium-telematics-e2e/actions/workflows/robot-tests.yml/badge.svg)
+
 ShieldDrive is a functional prototype of a modern automotive fleet management system. It demonstrates how to bridge the gap between web development and automotive engineering by using **Robot Framework** to test end-to-end telematics flows.
 
 ## Project Overview
